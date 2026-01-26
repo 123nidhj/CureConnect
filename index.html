@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CureConnect - Book Your Appointment</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="hospital-logo">
+                <i class="fas fa-heartbeat"></i>
+                <h1>CureConnect</h1>
+                <i class="fas fa-heart"></i>
+            </div>
+            <p class="tagline">❤️ Your Health, Our Priority ❤️</p>
+            <div class="hospital-info">
+                <div class="info-item">
+                    <i class="fas fa-phone"></i>
+                    <span>Emergency: +91-911</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock"></i>
+                    <span>24/7 Service</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Multi-Location</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Welcome Section -->
+        <section id="welcome" class="section active">
+            <div class="welcome-content">
+                <div class="medical-icons">
+                    <i class="fas fa-stethoscope"></i>
+                    <i class="fas fa-user-md"></i>
+                    <i class="fas fa-hospital"></i>
+                </div>
+                <h2>Book Your Appointment</h2>
+                <p>Schedule your visit with our expert doctors in just a few simple steps</p>
+                <div class="features">
+                    <div class="feature">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Easy Booking</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-user-md"></i>
+                        <span>Expert Doctors</span>
+                    </div>
+                    <div class="feature">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Safe & Secure</span>
+                    </div>
+                </div>
+                <button onclick="startBooking()" class="start-btn">
+                    <i class="fas fa-calendar-plus"></i>
+                    Start Booking
+                </button>
+            </div>
+        </section>
+
+        <!-- Step 1: Select Date & Time -->
+        <section id="step1" class="section">
+            <div class="step-header">
+                <i class="fas fa-calendar-alt step-icon"></i>
+                <h2>Step 1: Select Date & Time</h2>
+                <div class="progress-bar">
+                    <div class="progress" style="width: 25%"></div>
+                </div>
+            </div>
+            <div class="form-container">
+                <label for="appointment-date">
+                    <i class="fas fa-calendar"></i>
+                    Choose your preferred date:
+                </label>
+                <input type="date" id="appointment-date" required>
+                
+                <label for="appointment-time">
+                    <i class="fas fa-clock"></i>
+                    Choose your preferred time:
+                </label>
+                <select id="appointment-time" required>
+                    <option value="">Select Time</option>
+                    <option value="09:00">9:00 AM</option>
+                    <option value="10:00">10:00 AM</option>
+                    <option value="11:00">11:00 AM</option>
+                    <option value="12:00">12:00 PM</option>
+                    <option value="13:00">1:00 PM</option>
+                    <option value="14:00">2:00 PM</option>
+                    <option value="15:00">3:00 PM</option>
+                    <option value="16:00">4:00 PM</option>
+                    <option value="17:00">5:00 PM</option>
+                    <option value="18:00">6:00 PM</option>
+                    <option value="19:00">7:00 PM</option>
+                    <option value="20:00">8:00 PM</option>
+                </select>
+                
+                <button onclick="nextStep(2)" class="next-btn">
+                    <i class="fas fa-arrow-right"></i>
+                    Next
+                </button>
+            </div>
+        </section>
+
+        <!-- Step 2: Patient Details -->
+        <section id="step2" class="section">
+            <div class="step-header">
+                <i class="fas fa-user step-icon"></i>
+                <h2>Step 2: Your Details</h2>
+                <div class="progress-bar">
+                    <div class="progress" style="width: 50%"></div>
+                </div>
+            </div>
+            <div class="form-container">
+                <input type="text" id="patient-name" placeholder="Full Name" required>
+                <input type="email" id="patient-email" placeholder="Email Address" required>
+                <input type="tel" id="patient-phone" placeholder="Phone Number" required>
+                <input type="date" id="patient-dob" placeholder="Date of Birth" required>
+                <select id="patient-gender" required>
+                    <option value="">Select Gender</option>
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                    <option value="OTHER">Other</option>
+                </select>
+                <textarea id="patient-address" placeholder="Address" required></textarea>
+                
+                <div class="button-group">
+                    <button onclick="prevStep(1)" class="prev-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        Back
+                    </button>
+                    <button onclick="nextStep(3)" class="next-btn">
+                        <i class="fas fa-arrow-right"></i>
+                        Next
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3: Select Hospital -->
+        <section id="step3" class="section">
+            <div class="step-header">
+                <i class="fas fa-hospital step-icon"></i>
+                <h2>Step 3: Select Hospital</h2>
+                <div class="progress-bar">
+                    <div class="progress" style="width: 75%"></div>
+                </div>
+            </div>
+            <div class="form-container">
+                <div class="hospital-options">
+                    <div class="hospital-card" onclick="selectHospital('Manipal Hospital Udupi')">
+                        <i class="fas fa-hospital-alt"></i>
+                        <h3>Manipal Hospital Udupi</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Tiger Circle, Udupi, Karnataka</p>
+                        <p><i class="fas fa-star"></i> 4.8/5 Rating • 300+ Doctors</p>
+                    </div>
+                    <div class="hospital-card" onclick="selectHospital('KMC Hospital Mangalore')">
+                        <i class="fas fa-hospital-alt"></i>
+                        <h3>KMC Hospital Mangalore</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Attavar, Mangalore, Karnataka</p>
+                        <p><i class="fas fa-star"></i> 4.7/5 Rating • 400+ Doctors</p>
+                    </div>
+                    <div class="hospital-card" onclick="selectHospital('Adarsh Hospital Udupi')">
+                        <i class="fas fa-hospital-alt"></i>
+                        <h3>Adarsh Hospital Udupi</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Court Road, Udupi, Karnataka</p>
+                        <p><i class="fas fa-star"></i> 4.6/5 Rating • 250+ Doctors</p>
+                    </div>
+                    <div class="hospital-card" onclick="selectHospital('Yenepoya Medical College Hospital')">
+                        <i class="fas fa-hospital-alt"></i>
+                        <h3>Yenepoya Medical College Hospital</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Deralakatte, Mangalore, Karnataka</p>
+                        <p><i class="fas fa-star"></i> 4.9/5 Rating • 500+ Doctors</p>
+                    </div>
+                    <div class="hospital-card" onclick="selectHospital('Kasturba Medical College Hospital')">
+                        <i class="fas fa-hospital-alt"></i>
+                        <h3>Kasturba Medical College Hospital</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Lighthouse Hill, Mangalore, Karnataka</p>
+                        <p><i class="fas fa-star"></i> 4.8/5 Rating • 600+ Doctors</p>
+                    </div>
+                    <div class="hospital-card" onclick="selectHospital('Shree Devi Hospital Udupi')">
+                        <i class="fas fa-hospital-alt"></i>
+                        <h3>Shree Devi Hospital Udupi</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> Rajathadri, Udupi, Karnataka</p>
+                        <p><i class="fas fa-star"></i> 4.5/5 Rating • 200+ Doctors</p>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button onclick="prevStep(2)" class="prev-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        Back
+                    </button>
+                    <button onclick="nextStep(4)" class="next-btn" id="hospital-next" disabled>
+                        <i class="fas fa-arrow-right"></i>
+                        Next
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 4: Select Doctor -->
+        <section id="step4" class="section">
+            <div class="step-header">
+                <i class="fas fa-user-md step-icon"></i>
+                <h2>Step 4: Select Doctor</h2>
+                <div class="progress-bar">
+                    <div class="progress" style="width: 100%"></div>
+                </div>
+            </div>
+            <div class="form-container">
+                <div class="doctor-options" id="doctor-options">
+                    <!-- Doctors will be loaded here -->
+                </div>
+                
+                <div class="button-group">
+                    <button onclick="prevStep(3)" class="prev-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        Back
+                    </button>
+                    <button onclick="confirmBooking()" class="confirm-btn" id="doctor-next" disabled>
+                        <i class="fas fa-check-circle"></i>
+                        Confirm Booking
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Confirmation Section -->
+        <section id="confirmation" class="section">
+            <div class="confirmation-content">
+                <div class="success-animation">
+                    <i class="fas fa-check-circle"></i>
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h2>Appointment Booked Successfully!</h2>
+                <div class="booking-details" id="booking-details">
+                    <!-- Booking details will be shown here -->
+                </div>
+                <div class="confirmation-actions">
+                    <button onclick="bookAnother()" class="book-another-btn">
+                        <i class="fas fa-plus"></i>
+                        Book Another Appointment
+                    </button>
+                    <button onclick="downloadReceipt()" class="download-btn">
+                        <i class="fas fa-download"></i>
+                        Download Receipt
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
