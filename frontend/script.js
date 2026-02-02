@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'http://localhost:8081/api';
 
 // Global variables to store booking data
 let bookingData = {
@@ -11,7 +11,7 @@ let bookingData = {
 
 // Indian doctors data with specializations
 const sampleDoctors = [
-    { id: 1, name: 'Dr. Rajesh Sharma', specialization: 'Cardiology', experience: '15 years', qualification: 'MD, DM Cardiology' },
+    { id: 1, name: 'Dr. Rajesh Sharma', specialization: 'Cardiology', experience: '15 years', qualification: 'MD DM Cardiology' },
     { id: 2, name: 'Dr. Priya Patel', specialization: 'Dermatology', experience: '12 years', qualification: 'MD Dermatology' },
     { id: 3, name: 'Dr. Amit Kumar', specialization: 'Pediatrics', experience: '10 years', qualification: 'MD Pediatrics' },
     { id: 4, name: 'Dr. Sunita Singh', specialization: 'Orthopedics', experience: '18 years', qualification: 'MS Orthopedics' },
@@ -451,4 +451,452 @@ function bookAnother() {
     
     // Go back to welcome
     showSection('welcome');
+}
+
+// Admin functionality
+let isAdminLoggedIn = false;
+let reminders = JSON.parse(localStorage.getItem('cureconnect_reminders') || '[]');
+
+function showAdminLogin() {
+    document.getElementById('admin-modal').style.display = 'block';
+}
+
+function closeAdminModal() {
+    document.getElementById('admin-modal').style.display = 'none';
+}
+
+function adminLogin() {
+    const username = document.getElementById('admin-username').value;
+    const password = document.getElementById('admin-password').value;
+    
+    // Simple authentication (in production, use proper authentication)
+    if (username === 'admin' && password === 'admin123') {
+        isAdminLoggedIn = true;
+        closeAdminModal();
+        showSection('admin-dashboard');
+        loadAdminData();
+    } else {
+        alert('Invalid credentials! Use admin/admin123');
+    }
+}
+
+function logoutAdmin() {
+    isAdminLoggedIn = false;
+    showSection('welcome');
+}
+
+function showAdminTab(tabName) {
+    // Remove active class from all tabs and content
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.admin-tab-content').forEach(content => content.classList.remove('active'));
+    
+    // Add active class to clicked tab and corresponding content
+    event.target.classList.add('active');
+    document.getElementById(`admin-${tabName}`).classList.add('active');
+    
+    // Load data for the selected tab
+    switch(tabName) {
+        case 'appointments':
+            refreshAppointments();
+            break;
+        case 'patients':
+            refreshPatients();
+            break;
+        case 'doctors':
+            refreshDoctors();
+            break;
+        case 'reminders':
+            refreshReminders();
+            break;
+    }
+}
+
+async function loadAdminData() {
+    refreshAppointments();
+}
+
+async function refreshAppointments() {
+    const appointmentsList = document.getElementById('appointments-list');
+    appointmentsList.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading appointments...</p></div>';
+    
+    try {
+        const appointments = await apiCall('/appointments');
+        
+        if (appointments.length === 0) {
+            appointmentsList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>No appointments found</p>
+                </div>
+            `;
+            return;
+        }
+        
+        appointmentsList.innerHTML = `
+            <div class="table-header" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
+                <div>Patient</div>
+                <div>Doctor</div>
+                <div>Date & Time</div>
+                <div>Status</div>
+                <div>Actions</div>
+            </div>
+            ${appointments.map(appointment => `
+                <div class="table-row" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
+                    <div class="table-cell">
+                        <span class="cell-label">Patient</span>
+                        <span class="cell-value">${appointment.patient?.name || 'N/A'}</span>
+                    </div>
+                    <div class="table-cell">
+                        <span class="cell-label">Doctor</span>
+                        <span class="cell-value">${appointment.doctor?.name || 'N/A'}</span>
+                    </div>
+                    <div class="table-cell">
+                        <span class="cell-label">Date & Time</span>
+                        <span class="cell-value">${new Date(appointment.appointmentDateTime).toLocaleString()}</span>
+                    </div>
+                    <div class="table-cell">
+                        <span class="cell-label">Status</span>
+                        <span class="cell-value">Scheduled</span>
+                    </div>
+                    <div class="table-cell">
+                        <span class="cell-label">Actions</span>
+                        <div class="action-buttons">
+                            <button class="action-btn call-btn" onclick="callPatient('${appointment.patient?.phone}', '${appointment.patient?.name}')">
+                                <i class="fas fa-phone"></i> Call
+                            </button>
+                            <button class="action-btn edit-btn" onclick="editAppointment(${appointment.id})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        `;
+    } catch (error) {
+        appointmentsList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Error loading appointments: ${error.message}</p>
+            </div>
+        `;
+    }
+}
+
+async function refreshPatients() {
+    const patientsList = document.getElementById('patients-list');
+    patientsList.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading patients...</p></div>';
+    
+    try {
+        const patients = await apiCall('/patients');
+        
+        if (patients.length === 0) {
+            patientsList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-user-times"></i>
+                    <p>No patients found</p>
+                </div>
+            `;
+            return;
+        }
+        
+        patientsList.innerHTML = `
+            <div class="table-header" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
+                <div>Name</div>
+                <div>Age/Gender</div>
+                <div>Contact</div>
+                <div>Address</div>
+                <div>Actions</div>
+            </div>
+            ${patients.map(patient => {
+                const age = Math.floor((new Date() - new Date(patient.dateOfBirth)) / (365.25 * 24 * 60 * 60 * 1000));
+                return `
+                    <div class="table-row" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
+                        <div class="table-cell">
+                            <span class="cell-label">Name</span>
+                            <span class="cell-value">${patient.name}</span>
+                        </div>
+                        <div class="table-cell">
+                            <span class="cell-label">Age/Gender</span>
+                            <span class="cell-value">${age} years, ${patient.gender}</span>
+                        </div>
+                        <div class="table-cell">
+                            <span class="cell-label">Contact</span>
+                            <span class="cell-value">${patient.phone}<br>${patient.email}</span>
+                        </div>
+                        <div class="table-cell">
+                            <span class="cell-label">Address</span>
+                            <span class="cell-value">${patient.address}</span>
+                        </div>
+                        <div class="table-cell">
+                            <span class="cell-label">Actions</span>
+                            <div class="action-buttons">
+                                <button class="action-btn call-btn" onclick="callPatient('${patient.phone}', '${patient.name}')">
+                                    <i class="fas fa-phone"></i> Call
+                                </button>
+                                <button class="action-btn edit-btn" onclick="editPatient(${patient.id})">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        `;
+    } catch (error) {
+        patientsList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Error loading patients: ${error.message}</p>
+            </div>
+        `;
+    }
+}
+
+async function refreshDoctors() {
+    const doctorsList = document.getElementById('doctors-list');
+    doctorsList.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i><p>Loading doctors...</p></div>';
+    
+    try {
+        const doctors = await apiCall('/doctors');
+        
+        if (doctors.length === 0) {
+            doctorsList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-user-md-times"></i>
+                    <p>No doctors found</p>
+                </div>
+            `;
+            return;
+        }
+        
+        doctorsList.innerHTML = `
+            <div class="table-header" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+                <div>Name</div>
+                <div>Specialization</div>
+                <div>Contact</div>
+                <div>Actions</div>
+            </div>
+            ${doctors.map(doctor => `
+                <div class="table-row" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+                    <div class="table-cell">
+                        <span class="cell-label">Name</span>
+                        <span class="cell-value">${doctor.name}</span>
+                    </div>
+                    <div class="table-cell">
+                        <span class="cell-label">Specialization</span>
+                        <span class="cell-value">${doctor.specialization}</span>
+                    </div>
+                    <div class="table-cell">
+                        <span class="cell-label">Contact</span>
+                        <span class="cell-value">${doctor.phone}<br>${doctor.email}</span>
+                    </div>
+                    <div class="table-cell">
+                        <span class="cell-label">Actions</span>
+                        <div class="action-buttons">
+                            <button class="action-btn call-btn" onclick="callDoctor('${doctor.phone}', '${doctor.name}')">
+                                <i class="fas fa-phone"></i> Call
+                            </button>
+                            <button class="action-btn edit-btn" onclick="editDoctor(${doctor.id})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        `;
+    } catch (error) {
+        doctorsList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Error loading doctors: ${error.message}</p>
+            </div>
+        `;
+    }
+}
+
+function refreshReminders() {
+    const remindersList = document.getElementById('reminders-list');
+    
+    if (reminders.length === 0) {
+        remindersList.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-bell-slash"></i>
+                <p>No reminders scheduled</p>
+            </div>
+        `;
+        return;
+    }
+    
+    remindersList.innerHTML = `
+        <div class="table-header" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
+            <div>Patient</div>
+            <div>Phone</div>
+            <div>Appointment</div>
+            <div>Reminder Time</div>
+            <div>Actions</div>
+        </div>
+        ${reminders.map((reminder, index) => `
+            <div class="table-row" style="grid-template-columns: 1fr 1fr 1fr 1fr 1fr;">
+                <div class="table-cell">
+                    <span class="cell-label">Patient</span>
+                    <span class="cell-value">${reminder.patientName}</span>
+                </div>
+                <div class="table-cell">
+                    <span class="cell-label">Phone</span>
+                    <span class="cell-value">${reminder.phone}</span>
+                </div>
+                <div class="table-cell">
+                    <span class="cell-label">Appointment</span>
+                    <span class="cell-value">${new Date(reminder.appointmentDateTime).toLocaleString()}</span>
+                </div>
+                <div class="table-cell">
+                    <span class="cell-label">Reminder Time</span>
+                    <span class="cell-value">${new Date(reminder.reminderDateTime).toLocaleString()}</span>
+                </div>
+                <div class="table-cell">
+                    <span class="cell-label">Actions</span>
+                    <div class="action-buttons">
+                        <button class="action-btn call-btn" onclick="callPatient('${reminder.phone}', '${reminder.patientName}')">
+                            <i class="fas fa-phone"></i> Call Now
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteReminder(${index})">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('')}
+    `;
+}
+
+// Call functionality
+function callPatient(phone, name) {
+    const confirmed = confirm(`Call ${name} at ${phone}?\n\nThis will open your phone app or dialer.`);
+    if (confirmed) {
+        // Try to open phone app (works on mobile devices)
+        window.open(`tel:${phone}`, '_self');
+        
+        // Also show a notification
+        alert(`📞 Calling ${name} at ${phone}\n\nReminder: Discuss appointment details and confirm attendance.`);
+    }
+}
+
+function callDoctor(phone, name) {
+    const confirmed = confirm(`Call Dr. ${name} at ${phone}?\n\nThis will open your phone app or dialer.`);
+    if (confirmed) {
+        window.open(`tel:${phone}`, '_self');
+        alert(`📞 Calling Dr. ${name} at ${phone}`);
+    }
+}
+
+// Reminder functionality
+function scheduleReminder() {
+    if (!bookingData.patient.name) {
+        alert('No appointment data found!');
+        return;
+    }
+    
+    const reminderTime = prompt(
+        `Schedule a reminder call for ${bookingData.patient.name}?\n\n` +
+        `Appointment: ${new Date(bookingData.date + 'T' + bookingData.time).toLocaleString()}\n\n` +
+        `Enter hours before appointment to call (e.g., 24 for 1 day before):`
+    );
+    
+    if (reminderTime && !isNaN(reminderTime)) {
+        const appointmentDateTime = new Date(bookingData.date + 'T' + bookingData.time);
+        const reminderDateTime = new Date(appointmentDateTime.getTime() - (reminderTime * 60 * 60 * 1000));
+        
+        const reminder = {
+            patientName: bookingData.patient.name,
+            phone: bookingData.patient.phone,
+            appointmentDateTime: appointmentDateTime.toISOString(),
+            reminderDateTime: reminderDateTime.toISOString(),
+            doctorName: bookingData.doctor.name,
+            hospital: bookingData.hospital
+        };
+        
+        reminders.push(reminder);
+        localStorage.setItem('cureconnect_reminders', JSON.stringify(reminders));
+        
+        alert(`✅ Reminder scheduled!\n\nWe will remind you to call ${bookingData.patient.name} on ${reminderDateTime.toLocaleString()}`);
+    }
+}
+
+function deleteReminder(index) {
+    if (confirm('Delete this reminder?')) {
+        reminders.splice(index, 1);
+        localStorage.setItem('cureconnect_reminders', JSON.stringify(reminders));
+        refreshReminders();
+    }
+}
+
+// Edit functions (placeholder implementations)
+function editAppointment(appointmentId) {
+    alert(`Edit appointment #${appointmentId}\n\nThis feature will be implemented in the next version.`);
+}
+
+function editPatient(patientId) {
+    alert(`Edit patient #${patientId}\n\nThis feature will be implemented in the next version.`);
+}
+
+function editDoctor(doctorId) {
+    alert(`Edit doctor #${doctorId}\n\nThis feature will be implemented in the next version.`);
+}
+
+// Check for due reminders on page load
+document.addEventListener('DOMContentLoaded', () => {
+    checkDueReminders();
+    setInterval(checkDueReminders, 60000); // Check every minute
+});
+
+function checkDueReminders() {
+    const now = new Date();
+    const dueReminders = reminders.filter(reminder => {
+        const reminderTime = new Date(reminder.reminderDateTime);
+        return reminderTime <= now && reminderTime > new Date(now.getTime() - 60000); // Within last minute
+    });
+    
+    dueReminders.forEach(reminder => {
+        if (confirm(`🔔 Reminder: Call ${reminder.patientName}\n\nAppointment: ${new Date(reminder.appointmentDateTime).toLocaleString()}\nPhone: ${reminder.phone}\n\nCall now?`)) {
+            callPatient(reminder.phone, reminder.patientName);
+        }
+    });
+}
+
+// Fix event handling for better compatibility
+function selectHospital(hospitalName) {
+    // Remove previous selection
+    document.querySelectorAll('.hospital-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Add selection to clicked card - find the card that was clicked
+    const clickedCard = Array.from(document.querySelectorAll('.hospital-card')).find(card => 
+        card.textContent.includes(hospitalName)
+    );
+    if (clickedCard) {
+        clickedCard.classList.add('selected');
+    }
+    
+    bookingData.hospital = hospitalName;
+    document.getElementById('hospital-next').disabled = false;
+}
+
+function selectDoctor(doctorId) {
+    // Remove previous selection
+    document.querySelectorAll('.doctor-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Add selection to clicked card - find the card that was clicked
+    const clickedCard = Array.from(document.querySelectorAll('.doctor-card')).find(card => 
+        card.onclick && card.onclick.toString().includes(doctorId)
+    );
+    if (clickedCard) {
+        clickedCard.classList.add('selected');
+    }
+    
+    const selectedDoctor = sampleDoctors.find(doctor => doctor.id === doctorId);
+    bookingData.doctor = selectedDoctor;
+    document.getElementById('doctor-next').disabled = false;
 }

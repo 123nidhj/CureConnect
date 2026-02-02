@@ -11,7 +11,15 @@
     <div class="container">
         <header>
             <div class="hospital-logo">
-                <i class="fas fa-heartbeat"></i>
+                <div class="custom-logo">
+                    <div class="logo-n">N</div>
+                    <div class="heartbeat-line">
+                        <svg viewBox="0 0 200 40" class="heartbeat-svg">
+                            <path d="M0,20 L40,20 L50,5 L60,35 L70,10 L80,30 L90,20 L200,20" 
+                                  stroke="#ffffff" stroke-width="3" fill="none"/>
+                        </svg>
+                    </div>
+                </div>
                 <h1>CureConnect</h1>
                 <i class="fas fa-heart"></i>
             </div>
@@ -28,6 +36,10 @@
                 <div class="info-item">
                     <i class="fas fa-map-marker-alt"></i>
                     <span>Multi-Location</span>
+                </div>
+                <div class="info-item admin-access">
+                    <i class="fas fa-user-shield"></i>
+                    <span onclick="showAdminLogin()" style="cursor: pointer;">Admin</span>
                 </div>
             </div>
         </header>
@@ -250,6 +262,108 @@
                         <i class="fas fa-download"></i>
                         Download Receipt
                     </button>
+                    <button onclick="scheduleReminder()" class="reminder-btn">
+                        <i class="fas fa-bell"></i>
+                        Set Reminder Call
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Login Modal -->
+        <div id="admin-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeAdminModal()">&times;</span>
+                <h2><i class="fas fa-user-shield"></i> Admin Login</h2>
+                <div class="admin-login-form">
+                    <input type="text" id="admin-username" placeholder="Username" value="admin">
+                    <input type="password" id="admin-password" placeholder="Password" value="admin123">
+                    <button onclick="adminLogin()" class="admin-login-btn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Login
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard -->
+        <section id="admin-dashboard" class="section">
+            <div class="admin-header">
+                <h2><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h2>
+                <button onclick="logoutAdmin()" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+            
+            <div class="admin-tabs">
+                <button class="tab-btn active" onclick="showAdminTab('appointments')">
+                    <i class="fas fa-calendar-check"></i>
+                    Appointments
+                </button>
+                <button class="tab-btn" onclick="showAdminTab('patients')">
+                    <i class="fas fa-users"></i>
+                    Patients
+                </button>
+                <button class="tab-btn" onclick="showAdminTab('doctors')">
+                    <i class="fas fa-user-md"></i>
+                    Doctors
+                </button>
+                <button class="tab-btn" onclick="showAdminTab('reminders')">
+                    <i class="fas fa-bell"></i>
+                    Reminders
+                </button>
+            </div>
+
+            <div id="admin-appointments" class="admin-tab-content active">
+                <div class="admin-controls">
+                    <h3>Appointment Management</h3>
+                    <button onclick="refreshAppointments()" class="refresh-btn">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+                <div id="appointments-list" class="data-table">
+                    <!-- Appointments will be loaded here -->
+                </div>
+            </div>
+
+            <div id="admin-patients" class="admin-tab-content">
+                <div class="admin-controls">
+                    <h3>Patient Management</h3>
+                    <button onclick="refreshPatients()" class="refresh-btn">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+                <div id="patients-list" class="data-table">
+                    <!-- Patients will be loaded here -->
+                </div>
+            </div>
+
+            <div id="admin-doctors" class="admin-tab-content">
+                <div class="admin-controls">
+                    <h3>Doctor Management</h3>
+                    <button onclick="refreshDoctors()" class="refresh-btn">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+                <div id="doctors-list" class="data-table">
+                    <!-- Doctors will be loaded here -->
+                </div>
+            </div>
+
+            <div id="admin-reminders" class="admin-tab-content">
+                <div class="admin-controls">
+                    <h3>Call Reminders</h3>
+                    <button onclick="refreshReminders()" class="refresh-btn">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+                <div id="reminders-list" class="data-table">
+                    <!-- Reminders will be loaded here -->
                 </div>
             </div>
         </section>
